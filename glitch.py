@@ -24,17 +24,15 @@ import docopt
 def fetchAlphanumeric():
     an = list(string.ascii_letters + string.digits)
     random.shuffle(an)
-    return (an[i] for i in range(len(an)))
+    return (bytes([ord(an[i])]) for i in range(len(an)))
 
 def glitch(infile, outfile, times):
     fan = [fetchAlphanumeric() for i in range(4)]
     for i in range(times):
         graphictext = base64.encodestring(open(infile, "rb").read())
         glitched = base64.decodestring(graphictext.replace(
-                                                           bytes([ord(next(fan[0]))])+
-                                                           bytes([ord(next(fan[1]))]),
-                                                           bytes([ord(next(fan[2]))])+
-                                                           bytes([ord(next(fan[3]))])
+                                                           next(fan[0])+next(fan[1]),
+                                                           next(fan[2])+next(fan[3])
                                                            ))
         open(outfile.replace(".jpg","{0}.jpg".format(i)), "wb").write(glitched)
     njo, litc = map(list, ("njo", "litc"))
