@@ -5,13 +5,14 @@
 Enjoy your glitch life!!
 
 Usage:
-  glitch [-h] -i=<input> [-o=<output>] [-n=<times>]
+  glitch [-h] -i=<input> [-o=<output>] [-n=<times>] [max]
 
 Options:
   -h  show this
-  -i=<input>  base `jpg` file
-  -o=<output>  52 glitched files[default: ./glitched.jpg]
-  -n=<times>  output files N times[default: (26+26+20)**2]
+  -i=<input>  '*.jpg' file
+  -o=<output>  '*.jpg' glitched file[default: ./glitched.jpg]
+  -n=<times>  output files N times[default: 10]
+  max  create max(62) files
 """
 
 
@@ -26,9 +27,11 @@ def fetchAlphanumeric():
     random.shuffle(an)
     return (bytes([ord(an[i])]) for i in range(len(an)))
 
-def glitch(infile, outfile, times):
+def glitch(infile, outfile="glitched.jpg", times=10, max=False):
+    if max:
+        times = len(string.ascii_letters + string.digits)
     fan = [fetchAlphanumeric() for i in range(4)]
-    for i in range(times):
+    for i in range(int(times)):
         graphictext = base64.encodestring(open(infile, "rb").read())
         glitched = base64.decodestring(graphictext.replace(
                                                            next(fan[0])+next(fan[1]),
@@ -41,8 +44,8 @@ def glitch(infile, outfile, times):
     return "E" + "".join(njo) + "y G" + "".join(litc) + "h."
 
 def main(*args):
-    glitch(args[0], args[1], args[2])
+    return glitch(*args)
 
 if __name__ == '__main__':
-    args = docopt.docopt(__doc__)
-    print(main(args["-i"], args["-o"], args["-n"]))
+    args = docopt.docopt(__doc__, version=1.0)
+    print(main(args["-i"], args["-o"], args["-n"], args["max"]))
