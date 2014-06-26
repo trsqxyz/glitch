@@ -11,6 +11,6 @@ setup(name="glitch",
 	packages=find_packages(),
 	entry_points="""
 	[console_scripts]
-	glitch = glitch.glitch:main
+	glitch = glitch.glitch:glitch
 	""",
 	)
