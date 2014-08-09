@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from distutils.core import setup
 
 setup(name="glitch",
 	version="1.0",
@@ -8,9 +8,10 @@ setup(name="glitch",
 	author="trsqxyz",
 	author_email="trsqxyz@gmail.com",
 	url="https://github.com/trsqxyz",
-	packages=find_packages(),
-	entry_points="""
-	[console_scripts]
-	glitch = glitch.glitch:glitch
-	""",
-	)
+	packages=["glitch",],
+	entry_points={
+		"console_scripts": [
+			"glitch = glitch.glitch:main",
+		]
+	},
+)
