@@ -31,7 +31,6 @@ import base64
 import random
 import string
 import docopt
-from contextlib import contextmanager
 
 class Glitch:
     def __init__(self):
@@ -91,7 +90,7 @@ class Glitch:
     def mostbytes(self, text, remove_key=None):
         if isinstance(remove_key, bytes):
             remove_key = ord(remove_key)
-        text = list(set(text))
+        text = list(text)
         ruleout = [ord(w) for w in ['+', '=', '/', '\n']]
 
         if remove_key:
