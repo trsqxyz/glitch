@@ -1,16 +1,17 @@
-#! usr/bin/python
+#! usr/bin/python3
 # -*- coding: utf-8 -*-
 
 """
 Enjoy your glitch life!!
-Replace: 任意の箇所のバイト列を、同サイズの任意のバイト列に置き換える
-Increase: 任意の箇所のバイト列を、それより大きなサイズの任意のバイト列に置き換える
-Decrease: 任意の箇所のバイト列を、削除する
-Swap: 任意の箇所のバイト列と他の任意の箇所のバイト列を入れ替える
+Replace: 任意の箇所のバイト列と 同サイズの任意のバイト列を入れ換える
+Increase: 任意の箇所のバイト列と それより大きなサイズの任意のバイト列と入れ換える
+Decrease: 任意の箇所のバイト列を 削除する
+Swap: 任意の箇所のバイト列と 他の任意の箇所のバイト列を入れ換える
+Changiling: 任意のバイト文字を 他の任意のバイト文字に置き換える
 http://ucnv.org/openspace2013/map.html
 
 Usage:
-    glitch [-h] -i=<input> [-o=<output>] [-n=<times>] [maximum] [hard] [-m=<mode>]
+  glitch [-h] -i=<input> [-o=<output>] [-n=<times>] [maximum] [hard] [-m=<mode>]
 
 Options:
   -h  show this
@@ -22,7 +23,8 @@ Options:
   -m=<mode> glitch mode, r: replace,
                          i: increase,
                          d: decreace,
-                         s: swap
+                         s: swap,
+                         c: changiling
                          [default: r]
 """
 
@@ -38,94 +40,105 @@ class Glitch:
             'r': self.replace,
             'i': self.increase,
             'd': self.decrease,
-            's': self.swap
+            's': self.swap,
+            'c': self.changiling,
         }
 
     def glitch(self, infile, outfile='glitched.jpg', times=10, maximum=False, hard=False, mode='r'):
-        setting, mode, times = self.prepare_glitchfile(infile, hard, mode, times, maximum)
-        self.factory(outfile, setting, mode, times)
-        return self.enjoyglitch()
+        mode, graphictext, times = self.prepare_glitchfile(infile, mode, times, maximum)
+        self.factory(outfile, mode, graphictext, times, hard)
 
     def enjoyglitch(self):
-        njo, litc = map(list, ("njo", "litc"))
-        a = list(map(random.shuffle, (njo, litc)))
-        njo, litc = "".join(njo), "".join(litc)
-        return "E" + njo + "y G" + litc + "h."
-    
-    def factory(self, outfile, setting, mode, times):
+        _ = ("".join(random.sample(s, len(s))) for s in ('njo', 'litc'))
+        return "E" + next(_) + "y G" + next(_) + "h."
+
+    def factory(self, outfile, mode, graphictext, times, hard):
         for i in range(times):
-            filename = outfile.replace(".jpg", "{0}_{1}.jpg".format(i, mode.__name__))
-            with open(filename, "wb") as f:
-                g = self.machine(setting, mode)
+            name = 'hard' if hard else mode.__name__
+            glitchfile = outfile.replace(".jpg", "{0}_{1}.jpg".format(i, name))
+            with open(glitchfile, 'wb') as f:
+                g = self.machine(mode, graphictext, hard)
                 f.write(g)
 
-    def prepare_glitchfile(self, infile, hard, mode, times, maximum):
+    def prepare_glitchfile(self, infile, mode, times, maximum):
         mode = self.glitch_mode[mode]
         times = self.set_glitch_times(times, maximum)
         with open(infile, 'rb') as f:
-            graphictext = base64.encodestring(f.read())
+            lines = [line for line in f]
+            graphictext = list(map(base64.encodestring, lines))
+        return (mode, graphictext, times)
 
+    def machine(self, mode, graphictext, hard):
         if hard:
-            fan = [self.fetchAlphanumeric() for i in range(4)]
-            most = None
+            for m in self.glitch_mode.values():
+                graphictext = m(list(graphictext))
+            gf = graphictext
         else:
-            fan = [self.fetchAlphanumeric() for i in range(2)]
-            most = self.mostbytes(graphictext)
-            most += self.mostbytes(graphictext, most)
-
-        return ((graphictext, fan, most), mode, times)
-
-    def machine(self, setting, mode):
-        infile, fan, most = setting
-        if most is None:
-            most = next(fan[2]) + next(fan[3])
-        return mode(infile, fan, most)
+            gf =  mode(graphictext)
+        return b''.join(list(map(base64.decodestring, gf)))
 
     def set_glitch_times(self, times, maximum):
         if maximum:
             return len(string.ascii_letters + string.digits)
+        return int(times)
+
+    def alphanumeric(self):
+        return bytes([ord(random.choice(list(string.ascii_letters + string.digits)))])
+
+    def replace(self, infile):
+        '''Replace: 任意の箇所のバイト列と 同サイズの任意のバイト列を入れ換える
+        '''
+        gf = infile[:]
+        same_size_index = []
+        while len(same_size_index) <= 1:
+            index = random.randint(0,len(gf)-1)
+            index_len = len(gf[index])
+            same_size_index = [i for (i,g) in enumerate(gf) if len(g) == index_len]
         else:
-            return int(times)
+            same_size_index = random.choice(same_size_index[:])
+        gf[index], gf[same_size_index] = gf[same_size_index], gf[index]
+        return gf
 
-    def mostbytes(self, text, remove_key=None):
-        if isinstance(remove_key, bytes):
-            remove_key = ord(remove_key)
-        text = list(text)
-        ruleout = [ord(w) for w in ['+', '=', '/', '\n']]
+    def increase(self, infile):
+        '''Increase: 任意の箇所のバイト列と それより大きなサイズの任意のバイト列と入れ換える
+        '''
+        gf = infile[:]
+        index = gf.index(random.choice(gf))
+        index_len = len(gf[index])
+        large_size_index = random.choice([gf.index(g) for g in gf if len(g) > index_len])
+        gf[index], gf[large_size_index] = gf[large_size_index], gf[index]
+        return gf
 
-        if remove_key:
-            text.remove(remove_key)
+    def decrease(self, infile):
+        '''Decrease: 任意の箇所のバイト列を 削除する
+        '''
+        gf = infile[:]
+        index = random.randint(0, len(gf)-1)
+        gf = gf[:index] + gf[index+1:]
+        return gf
 
-        most = max(text, key=text.count)
-        if most in ruleout:
-            most = self.mostbytes(text, most)
-        try:
-            return bytes([ord(chr(most))])
-        except TypeError as e:
-            return most
+    def swap(self, infile):
+        '''Swap: 任意の箇所のバイト列と 他の任意の箇所のバイト列を入れ換える
+        '''
+        gf = infile[:]
+        index = gf.index(random.choice(gf))
+        another = gf.index(random.choice(gf))
+        gf[index], gf[another] = gf[another], gf[index]
+        return gf
 
-    def fetchAlphanumeric(self):
-        an = list(string.ascii_letters + string.digits)
-        random.shuffle(an)
-        return (bytes([ord(an[i])]) for i in range(len(an)))
-
-    def replace(self, infile, fan, most):
-        glitchfile = infile[:]
-        return base64.decodestring(glitchfile.replace(most, next(fan[0])+next(fan[1])))
-
-    def increase(self):
-        return 'Not yet.'
-
-    def decrease(self):
-        return 'Not yet.'
-
-    def swap(self, infile, outfile, hard):
-        return 'Not yet.'
+    def changiling(self, infile):
+        '''Changiling: 任意のバイト文字を 他の任意のバイト文字に置き換える
+        '''
+        gf = infile[:]
+        baby, fetch = (self.alphanumeric() for _ in range(2))
+        gf = [g.replace(baby, fetch) for g in gf]
+        return gf
 
 
 def main(*args):
     g = Glitch()
-    return g.glitch(*args)
+    g.glitch(*args)
+    return g.enjoyglitch()
 
 if __name__ == '__main__':
     args = docopt.docopt(__doc__, version=1.0)
