@@ -8,7 +8,6 @@ Increase: 任意の箇所のバイト列と それより大きなサイズの任
 Decrease: 任意の箇所のバイト列を 削除する
 Swap: 任意の箇所のバイト列と 他の任意の箇所のバイト列を入れ換える
 Changiling: 任意のバイト文字を 他の任意のバイト文字に置き換える
-http://ucnv.org/openspace2013/map.html
 
 Usage:
   glitch [-h] -i=<input> [-o=<output>] [-n=<times>] [maximum] [hard] [-m=<mode>]
@@ -82,13 +81,13 @@ class Glitch:
             return len(string.ascii_letters + string.digits)
         return int(times)
 
-    def alphanumeric(self):
-        return bytes([ord(random.choice(list(string.ascii_letters + string.digits)))])
+    def word_toaster(self):
+        return bytes([ord(random.choice(list(string.ascii_letters + string.digits + '+/')))])
 
     def replace(self, infile):
         '''Replace: 任意の箇所のバイト列と 同サイズの任意のバイト列を入れ換える
         '''
-        gf = infile[:]
+        gf = infile[31:]
         same_size_index = []
         while len(same_size_index) <= 1:
             index = random.randint(0,len(gf)-1)
@@ -97,42 +96,42 @@ class Glitch:
         else:
             same_size_index = random.choice(same_size_index[:])
         gf[index], gf[same_size_index] = gf[same_size_index], gf[index]
-        return gf
+        return infile[:31] + gf
 
     def increase(self, infile):
         '''Increase: 任意の箇所のバイト列と それより大きなサイズの任意のバイト列と入れ換える
         '''
-        gf = infile[:]
+        gf = infile[31:]
         index = gf.index(random.choice(gf))
         index_len = len(gf[index])
         large_size_index = random.choice([gf.index(g) for g in gf if len(g) > index_len])
         gf[index], gf[large_size_index] = gf[large_size_index], gf[index]
-        return gf
+        return infile[:31] + gf
 
     def decrease(self, infile):
         '''Decrease: 任意の箇所のバイト列を 削除する
         '''
-        gf = infile[:]
-        index = random.randint(0, len(gf)-1)
+        gf = infile[31:]
+        index = random.randint(31, len(gf)-1)
         gf = gf[:index] + gf[index+1:]
-        return gf
+        return infile[:31] + gf
 
     def swap(self, infile):
         '''Swap: 任意の箇所のバイト列と 他の任意の箇所のバイト列を入れ換える
         '''
-        gf = infile[:]
+        gf = infile[31:]
         index = gf.index(random.choice(gf))
         another = gf.index(random.choice(gf))
         gf[index], gf[another] = gf[another], gf[index]
-        return gf
+        return infile[:31] + gf
 
     def changiling(self, infile):
         '''Changiling: 任意のバイト文字を 他の任意のバイト文字に置き換える
         '''
-        gf = infile[:]
-        baby, fetch = (self.alphanumeric() for _ in range(2))
+        gf = infile[31:]
+        baby, fetch = (self.word_toaster() for _ in range(2))
         gf = [g.replace(baby, fetch) for g in gf]
-        return gf
+        return infile[:31] + gf
 
 
 def main(*args):
