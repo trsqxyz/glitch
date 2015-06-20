@@ -112,7 +112,7 @@ class Glitch:
         '''Decrease: 任意の箇所のバイト列を 削除する
         '''
         gf = infile[31:]
-        index = random.randint(31, len(gf)-1)
+        index = random.randint(len(gf)-1, 31)
         gf = gf[:index] + gf[index+1:]
         return infile[:31] + gf
 
