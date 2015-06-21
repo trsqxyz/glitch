@@ -140,8 +140,8 @@ def _main(*args):
     return g.enjoyglitch()
 
 def main(*args):
-    args = docopt.docopt(__doc__, version=1.1)
+    args = docopt.docopt(__doc__, version=1.3)
     print(_main(args["-i"], args["-o"], args["-n"], args["maximum"], args["hard"], args["-m"]))
 
 if __name__ == '__main__':
-    main(*args)
+    main()
