@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name = "glitch",
-    version = "1.1",
+    version = "1.3",
     description = "glitch jpg files",
     license = 'MIT',
     author = "trsqxyz",
@@ -18,6 +18,9 @@ setup(
     packages = ["glitch"],
     entry_points = """
         [console_scripts]
-            glitch = glitch.glitch.glitch:main
+            glitch = glitch.glitch:main
         """,
+    install_requires = [
+        'docopt',
+    ]
 )
