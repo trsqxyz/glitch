@@ -134,11 +134,14 @@ class Glitch:
         return infile[:31] + gf
 
 
-def main(*args):
+def _main(*args):
     g = Glitch()
     g.glitch(*args)
     return g.enjoyglitch()
 
+def main(*args):
+    args = docopt.docopt(__doc__, version=1.1)
+    print(_main(args["-i"], args["-o"], args["-n"], args["maximum"], args["hard"], args["-m"]))
+
 if __name__ == '__main__':
-    args = docopt.docopt(__doc__, version=1.0)
-    print(main(args["-i"], args["-o"], args["-n"], args["maximum"], args["hard"], args["-m"]))
+    main(*args)
