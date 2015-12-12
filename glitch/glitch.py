@@ -32,6 +32,7 @@ import base64
 import random
 import string
 import docopt
+import os
 
 class Glitch:
     def __init__(self):
@@ -58,6 +59,8 @@ class Glitch:
             with open(glitchfile, 'wb') as f:
                 g = self.machine(mode, graphictext, hard)
                 f.write(g)
+            if os.path.getsize(glitchfile) == 0:
+                os.remove(glitchfile)
 
     def prepare_glitchfile(self, infile, mode, times, maximum):
         mode = self.glitch_mode[mode]
@@ -112,7 +115,10 @@ class Glitch:
         '''Decrease: 任意の箇所のバイト列を 削除する
         '''
         gf = infile[31:]
-        index = random.randint(len(gf)-1, 31)
+        try:
+            index = random.randint(len(gf)-1, 31)
+        except ValueError:
+            return infile
         gf = gf[:index] + gf[index+1:]
         return infile[:31] + gf
 
