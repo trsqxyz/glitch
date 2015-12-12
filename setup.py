@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name = "glitch",
-    version = "1.3",
+    version = "1.4",
     description = "glitch jpg files",
     license = 'MIT',
     author = "trsqxyz",
